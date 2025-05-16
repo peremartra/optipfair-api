@@ -1,11 +1,44 @@
 # utils/visualize_pca.py
 
+# utils/visualize_pca.py
+
 import os
 import tempfile
-from optipfair.bias import visualize_pca
-from transformers import AutoModelForCausalLM, AutoTokenizer
+import logging
+from functools import lru_cache
 from typing import Tuple, Optional
 
+import torch
+from optipfair.bias import visualize_pca
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+@lru_cache(maxsize=None)
+def load_model_tokenizer(model_name: str):
+    """
+    Carga el modelo y el tokenizer en CPU una sola vez y cachea el resultado.
+    """
+    logger.info(f"Loading model and tokenizer for '{model_name}'")
+    
+    # Selección de device: MPS (Apple Silicon) > CUDA > CPU
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+    elif torch.mps.is_available():
+        device = torch.device("mps")
+    else:
+        device = torch.device("cpu")
+    logger.info(f"Using device: {device}")
+
+    model = AutoModelForCausalLM.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+    model = model.to(device)
+    
+    logger.info(f"Model loaded on device: {next(model.parameters()).device}")
+
+    return model, tokenizer
 
 def run_visualize_pca(
     model_name: str,
@@ -17,29 +50,22 @@ def run_visualize_pca(
     pair_index: int = 0,
 ) -> str:
     """
-    Wrapper que carga el modelo/tokenizer, llama a optipfair.bias.visualize_pca
-    y retorna la ruta al fichero de la imagen generada.
-
-    Args:
-        model_name: HuggingFace model identifier.
-        prompt_pair: Tuple de dos prompts contrastivos.
-        layer_key: Nombre exacto de la capa a visualizar.
-        highlight_diff: Marcar diferencias entre tokens.
-        output_dir: Carpeta donde guardar la imagen. Si es None, crea un tmpdir.
-        figure_format: Formato de la imagen ('png', 'svg', 'pdf').
-        pair_index: Índice del par de prompts para diferenciar archivos.
-
-    Returns:
-        Ruta completa al fichero generado.
+    Wrapper que:
+      - Prepara el directorio de salida
+      - Selecciona device: MPS > CUDA > CPU
+      - Carga (y cachea) modelo y tokenizer
+      - Mueve el modelo al device elegido
+      - Llama a optipfair.bias.visualize_pca
+      - Devuelve la ruta al fichero generado
     """
     # Preparar output_dir
     if output_dir is None:
         output_dir = tempfile.mkdtemp(prefix="optipfair_pca_")
     os.makedirs(output_dir, exist_ok=True)
 
-    # Cargar modelo y tokenizer
-    model = AutoModelForCausalLM.from_pretrained(model_name)
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+    # Cargar modelo y tokenizer cacheados
+    model, tokenizer = load_model_tokenizer(model_name)
 
     # Ejecutar la visualización
     visualize_pca(
@@ -53,7 +79,7 @@ def run_visualize_pca(
         pair_index=pair_index
     )
 
-    # Construir filename según convención interna de visualize_pca
+    # Construir la ruta al fichero según convención interna
     layer_parts = layer_key.split("_")
     layer_type = "_".join(layer_parts[:-1])
     layer_num = layer_parts[-1]
@@ -63,4 +89,6 @@ def run_visualize_pca(
     if not os.path.isfile(filepath):
         raise FileNotFoundError(f"Expected image file not found: {filepath}")
 
+    logger.info(f"PCA image saved at {filepath}")
     return filepath
+

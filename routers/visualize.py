@@ -32,9 +32,11 @@ async def visualize_pca_endpoint(req: VisualizePCARequest):
             pair_index=req.pair_index,
         )
     except Exception as e:
-        # Capturamos cualquier error interno y devolvemos 500
-        raise HTTPException(status_code=500, detail=f"Error generating PCA: {e}")
-
+        # Logueamos la traza completa para depurar
+        import logging
+        logging.exception("❌ Error en visualize_pca_endpoint")
+        # Y devolvemos el mensaje al cliente
+        raise HTTPException(status_code=500, detail=str(e))
     # 2. Verificar que el fichero exista
     if not filepath or not os.path.isfile(filepath):
         raise HTTPException(status_code=500, detail="Image file not found after generation")

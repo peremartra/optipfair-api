@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from routers.visualize import router as visualize_router
 
-app = FastAPI()
+app = FastAPI(debug=True)
 
 # ping endpoint ya existente
 @app.get("/ping")
@@ -11,3 +11,6 @@ async def ping():
 
 # incluir nuestro router de visualización
 app.include_router(visualize_router)
+
+import logging
+logging.basicConfig(level=logging.INFO)
