@@ -1,15 +1,18 @@
 # OptiPFair-API MVP
 
-A minimal REST API built with FastAPI to expose the PCA visualization capabilities of the OptiPFair library.
+A REST API built with FastAPI that exposes the bias visualization capabilities of the OptiPFair library.
 
 ---
 
 ## 📋 Overview
 
-This microservice provides an endpoint to generate and download PCA analysis visualizations of activation patterns from transformer-based LLMs (e.g., LLaMA) using the **OptiPFair** toolkit.
+This microservice provides endpoints to generate and download visualizations of activation patterns in transformer-based LLMs (e.g., LLaMA) using the **OptiPFair** toolkit.
 
-* **Primary endpoint:** `POST /visualize/pca`
-* **Response:** Binary image (PNG, SVG, or PDF) showing the PCA scatter plot of activations.
+* **Main endpoints:** 
+  * `POST /visualize/pca` - PCA visualization of activations
+  * `POST /visualize/mean-diff` - Mean activation difference across layers
+  * `POST /visualize/heatmap` - Heatmap of activation differences
+* **Response:** Binary image (PNG, SVG, or PDF) showing the requested visualization.
 
 ---
 
@@ -76,7 +79,7 @@ GET /ping
 
 ---
 
-### PCA Visualization
+### 1. PCA Visualization
 
 ```http
 POST /visualize/pca
@@ -94,7 +97,7 @@ Generates a PCA scatter plot comparing activations for two prompts.
 | `highlight_diff` | `boolean`   | (Optional) Highlight differing tokens (default: `true`).                            |
 | `figure_format`  | `string`    | (Optional) Output format: `png`, `svg`, or `pdf` (default: `png`).                  |
 | `pair_index`     | `integer`   | (Optional) Index for naming output file (default: `0`).                             |
-| `output_dir`     | `string`    | (Optional) Custom directory to save the image; if omitted, uses a temporary folder. |
+| `output_dir`     | `string`    | (Optional) Custom directory to save the image.                                      |
 
 **Example using `curl`:**
 
@@ -137,9 +140,103 @@ with open("pca_result.png", "wb") as f:
 print("Saved PCA visualization to pca_result.png")
 ```
 
-**Response:**
+---
 
-* Returns an image file with `Content-Type: image/png` or `image/svg+xml` or `application/pdf` depending on `figure_format`.
+### 2. Mean Difference Visualization
+
+```http
+POST /visualize/mean-diff
+```
+
+Generates a bar chart showing mean activation differences across layers for a specific component type.
+
+**Request JSON Schema:**
+
+| Field           | Type        | Description                                                                  |
+| --------------- | ----------- | ---------------------------------------------------------------------------- |
+| `model_name`    | `string`    | Hugging Face model identifier (e.g. `"meta-llama/Llama-3.2-1B"`).            |
+| `prompt_pair`   | `string[2]` | Array of exactly two prompts to compare.                                     |
+| `layer_type`    | `string`    | Component type to analyze (e.g. `"attention_output"`).                       |
+| `figure_format` | `string`    | (Optional) Output format (default: `png`).                                   |
+| `output_dir`    | `string`    | (Optional) Custom directory to save the image.                               |
+| `pair_index`    | `integer`   | (Optional) Index for naming output file (default: `0`).                      |
+
+**Valid layer types for `layer_type`:**
+- `mlp_output` - Output of the MLP block
+- `attention_output` - Output of the attention mechanism
+- `gate_proj` - Output of the gate projection in GLU
+- `up_proj` - Output of the up projection in GLU
+- `down_proj` - Output of the down projection in GLU
+- `input_norm` - Output of the input normalization
+
+**Example using Python (`requests`):**
+
+```python
+import requests
+
+payload = {
+    "model_name": "meta-llama/Llama-3.2-1B",
+    "prompt_pair": [
+        "The white doctor examined the patient. The nurse thought",
+        "The Black doctor examined the patient. The nurse thought"
+    ],
+    "layer_type": "attention_output",
+    "figure_format": "png"
+}
+
+resp = requests.post("http://127.0.0.1:8000/visualize/mean-diff", json=payload)
+resp.raise_for_status()
+
+with open("mean_diff_result.png", "wb") as f:
+    f.write(resp.content)
+
+print("Saved mean difference visualization to mean_diff_result.png")
+```
+
+---
+
+### 3. Heatmap Visualization
+
+```http
+POST /visualize/heatmap
+```
+
+Generates a heatmap showing activation differences for a specific layer.
+
+**Request JSON Schema:**
+
+| Field           | Type        | Description                                                                  |
+| --------------- | ----------- | ---------------------------------------------------------------------------- |
+| `model_name`    | `string`    | Hugging Face model identifier (e.g. `"meta-llama/Llama-3.2-1B"`).            |
+| `prompt_pair`   | `string[2]` | Array of exactly two prompts to compare.                                     |
+| `layer_key`     | `string`    | Exact layer name (e.g. `"attention_output_layer_0"`).                        |
+| `figure_format` | `string`    | (Optional) Output format (default: `png`).                                   |
+| `output_dir`    | `string`    | (Optional) Custom directory to save the image.                               |
+| `pair_index`    | `integer`   | (Optional) Index for naming output file (default: `0`).                      |
+
+**Example using Python (`requests`):**
+
+```python
+import requests
+
+payload = {
+    "model_name": "meta-llama/Llama-3.2-1B",
+    "prompt_pair": [
+        "The white doctor examined the patient. The nurse thought",
+        "The Black doctor examined the patient. The nurse thought"
+    ],
+    "layer_key": "attention_output_layer_2",
+    "figure_format": "png"
+}
+
+resp = requests.post("http://127.0.0.1:8000/visualize/heatmap", json=payload)
+resp.raise_for_status()
+
+with open("heatmap_result.png", "wb") as f:
+    f.write(resp.content)
+
+print("Saved heatmap visualization to heatmap_result.png")
+```
 
 ---
 
@@ -149,14 +246,11 @@ print("Saved PCA visualization to pca_result.png")
 optipfair-api/           # Repository root
 ├── main.py              # FastAPI application entrypoint
 ├── routers/             # API route modules
-│   └── visualize.py     # /visualize/pca router
+│   └── visualize.py     # Routes for /visualize/*
 ├── schemas/             # Pydantic request/response models
-│   └── visualize.py     # VisualizePCARequest model
+│   └── visualize.py     # Request schemas for visualizations
 ├── utils/               # Internal utility functions
-│   └── visualize_pca.py # Wrapper for optipfair.bias.visualize_pca
-├── tests/               # Unit and integration tests
-│   └── test_visualize.py
-├── requirements.txt     # Pinned dependencies
+│   └── visualize_pca.py # Wrappers for optipfair visualization functions
 └── README.md            # Project documentation
 ```
 
@@ -164,9 +258,10 @@ optipfair-api/           # Repository root
 
 ## ✅ Next Steps
 
-* Implement additional endpoints: `/mean-diff`, `/heatmap`, `/bias-report`.
-* Add automated tests and CI/CD pipeline.
-* Dockerize the service and deploy (e.g., on Hugging Face Spaces).
+* Improve documentation and usage examples
+* Add `/bias-report` endpoint for comprehensive reports
+* Add automated tests and CI/CD pipeline
+* Dockerize the service and deploy (e.g., on Hugging Face Spaces)
 
 ---
 
