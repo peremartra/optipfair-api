@@ -1,15 +1,12 @@
 # utils/visualize_pca.py
-
-# utils/visualize_pca.py
-
 import os
 import tempfile
 import logging
 from functools import lru_cache
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Union, List
 
 import torch
-from optipfair.bias import visualize_pca
+from optipfair.bias import visualize_pca, visualize_mean_differences, visualize_heatmap
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 logger = logging.getLogger(__name__)
@@ -49,25 +46,12 @@ def run_visualize_pca(
     figure_format: str = "png",
     pair_index: int = 0,
 ) -> str:
-    """
-    Wrapper que:
-      - Prepara el directorio de salida
-      - Selecciona device: MPS > CUDA > CPU
-      - Carga (y cachea) modelo y tokenizer
-      - Mueve el modelo al device elegido
-      - Llama a optipfair.bias.visualize_pca
-      - Devuelve la ruta al fichero generado
-    """
-    # Preparar output_dir
     if output_dir is None:
         output_dir = tempfile.mkdtemp(prefix="optipfair_pca_")
     os.makedirs(output_dir, exist_ok=True)
 
-
-    # Cargar modelo y tokenizer cacheados
     model, tokenizer = load_model_tokenizer(model_name)
 
-    # Ejecutar la visualización
     visualize_pca(
         model=model,
         tokenizer=tokenizer,
@@ -79,11 +63,16 @@ def run_visualize_pca(
         pair_index=pair_index
     )
 
-    # Construir la ruta al fichero según convención interna
     layer_parts = layer_key.split("_")
     layer_type = "_".join(layer_parts[:-1])
     layer_num = layer_parts[-1]
-    filename = f"pca_{layer_type}_{layer_num}_pair{pair_index}.{figure_format}"
+    filename = build_visualization_filename(
+        vis_type="pca",
+        layer_type=layer_type,
+        layer_num=layer_num,
+        pair_index=pair_index,
+        figure_format=figure_format
+    )
     filepath = os.path.join(output_dir, filename)
 
     if not os.path.isfile(filepath):
@@ -91,4 +80,100 @@ def run_visualize_pca(
 
     logger.info(f"PCA image saved at {filepath}")
     return filepath
+
+def run_visualize_mean_diff(
+    model_name: str,
+    prompt_pair: Tuple[str, str],
+    layer_type: str,  # Cambiado de layer_key a layer_type
+    figure_format: str = "png",
+    output_dir: Optional[str] = None,
+    pair_index: int = 0,
+) -> str:
+    if output_dir is None:
+        output_dir = tempfile.mkdtemp(prefix="optipfair_mean_diff_")
+    os.makedirs(output_dir, exist_ok=True)
+
+    model, tokenizer = load_model_tokenizer(model_name)
+
+    visualize_mean_differences(
+        model=model,
+        tokenizer=tokenizer,
+        prompt_pair=prompt_pair,
+        layer_type=layer_type,
+        layers="all",  # Por defecto mostramos todas las capas
+        output_dir=output_dir,
+        figure_format=figure_format,
+        pair_index=pair_index
+    )
+
+    filename = build_visualization_filename(
+        vis_type="mean_diff",
+        layer_type=layer_type,
+        pair_index=pair_index,
+        figure_format=figure_format
+    )
+    filepath = os.path.join(output_dir, filename)
+    if not os.path.isfile(filepath):
+        raise FileNotFoundError(f"Expected image file not found: {filepath}")
+    logger.info(f"Mean-diff image saved at {filepath}")
+    return filepath
+
+def run_visualize_heatmap(
+    model_name: str,
+    prompt_pair: Tuple[str, str],
+    layer_key: str,
+    figure_format: str = "png",
+    output_dir: Optional[str] = None,
+    pair_index: int = 0,
+) -> str:
+    if output_dir is None:
+        output_dir = tempfile.mkdtemp(prefix="optipfair_heatmap_")
+    os.makedirs(output_dir, exist_ok=True)
+
+    model, tokenizer = load_model_tokenizer(model_name)
+
+    visualize_heatmap(
+        model=model,
+        tokenizer=tokenizer,
+        prompt_pair=prompt_pair,
+        layer_key=layer_key,
+        output_dir=output_dir,
+        figure_format=figure_format,
+        pair_index=pair_index
+    )
+
+    parts = layer_key.split("_")
+    layer_type = "_".join(parts[:-1])
+    layer_num = parts[-1]
+    filename = build_visualization_filename(
+        vis_type="heatmap",
+        layer_type=layer_type,
+        layer_num=layer_num,
+        pair_index=pair_index,
+        figure_format=figure_format
+    )
+    filepath = os.path.join(output_dir, filename)
+    if not os.path.isfile(filepath):
+        raise FileNotFoundError(f"Expected image file not found: {filepath}")
+    logger.info(f"Heatmap image saved at {filepath}")
+    return filepath
+
+def build_visualization_filename(
+    vis_type: str,
+    layer_type: str,
+    layer_num: str = None,
+    layers: Union[str, List[int]] = None,
+    pair_index: int = 0,
+    figure_format: str = "png"
+) -> str:
+    """
+    Construye el nombre de archivo para cualquier visualización.
+    """
+    if vis_type == "mean_diff":
+        # La función visualize_mean_differences no incluye el número de capa en el nombre del archivo
+        return f"mean_diff_{layer_type}_pair{pair_index}.{figure_format}"
+    elif vis_type in ("pca", "heatmap"):
+        return f"{vis_type}_{layer_type}_{layer_num}_pair{pair_index}.{figure_format}"
+    else:
+        raise ValueError(f"Tipo de visualización desconocido: {vis_type}")
 

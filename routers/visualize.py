@@ -1,9 +1,21 @@
 # routers/visualize.py
 import os
+import logging
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
-from schemas.visualize import VisualizePCARequest
-from utils.visualize_pca import run_visualize_pca
+from schemas.visualize import (
+    VisualizePCARequest,
+    VisualizeMeanDiffRequest,
+    VisualizeHeatmapRequest,
+)
+from utils.visualize_pca import (
+    run_visualize_pca,
+    run_visualize_mean_diff,
+    run_visualize_heatmap,
+)
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 router = APIRouter(
     prefix="/visualize",
@@ -33,8 +45,7 @@ async def visualize_pca_endpoint(req: VisualizePCARequest):
         )
     except Exception as e:
         # Logueamos la traza completa para depurar
-        import logging
-        logging.exception("❌ Error en visualize_pca_endpoint")
+        logger.exception("❌ Error en visualize_pca_endpoint")
         # Y devolvemos el mensaje al cliente
         raise HTTPException(status_code=500, detail=str(e))
     # 2. Verificar que el fichero exista
@@ -47,4 +58,53 @@ async def visualize_pca_endpoint(req: VisualizePCARequest):
         media_type=f"image/{req.figure_format}",
         filename=os.path.basename(filepath),
         headers={"Content-Disposition": f'inline; filename="{os.path.basename(filepath)}"'},
+    )
+
+@router.post("/mean-diff", response_class=FileResponse)
+async def visualize_mean_diff_endpoint(req: VisualizeMeanDiffRequest):
+    try:
+        filepath = run_visualize_mean_diff(
+            model_name=req.model_name,
+            prompt_pair=tuple(req.prompt_pair),
+            layer_type=req.layer_type,  # Cambiado de layer_key a layer_type
+            figure_format=req.figure_format,
+            output_dir=req.output_dir,
+            pair_index=req.pair_index,
+        )
+    except Exception as e:
+        logger.exception("Error in mean-diff endpoint")
+        raise HTTPException(status_code=500, detail=str(e))
+
+    if not os.path.isfile(filepath):
+        raise HTTPException(status_code=500, detail="Image file not found")
+
+    return FileResponse(
+        path=filepath,
+        media_type=f"image/{req.figure_format}",
+        filename=os.path.basename(filepath),
+        headers={"Content-Disposition": f'inline; filename="{os.path.basename(filepath)}"'}
+    )
+
+@router.post("/heatmap", response_class=FileResponse)
+async def visualize_heatmap_endpoint(req: VisualizeHeatmapRequest):
+    try:
+        filepath = run_visualize_heatmap(
+            model_name=req.model_name,
+            prompt_pair=tuple(req.prompt_pair),
+            layer_key=req.layer_key,
+            figure_format=req.figure_format,
+            output_dir=req.output_dir,
+        )
+    except Exception as e:
+        logger.exception("Error in heatmap endpoint")
+        raise HTTPException(status_code=500, detail=str(e))
+
+    if not os.path.isfile(filepath):
+        raise HTTPException(status_code=500, detail="Image file not found")
+
+    return FileResponse(
+        path=filepath,
+        media_type=f"image/{req.figure_format}",
+        filename=os.path.basename(filepath),
+        headers={"Content-Disposition": f'inline; filename="{os.path.basename(filepath)}"'}
     )

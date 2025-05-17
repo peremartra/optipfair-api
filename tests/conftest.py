@@ -1,0 +1,8 @@
+# tests/conftest.py
+import os
+import sys 
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Forzar matplotlib a usar el backend Agg (sin GUI) durante los tests
+os.environ["MPLBACKEND"] = "Agg"
