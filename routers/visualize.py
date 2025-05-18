@@ -24,15 +24,15 @@ router = APIRouter(
 
 @router.post(
     "/pca",
-    summary="Genera y devuelve la visualización PCA de activaciones",
+    summary="Generates and returns the PCA visualization of activations",
     response_class=FileResponse,
 )
 async def visualize_pca_endpoint(req: VisualizePCARequest):
     """
-    Recibe los parámetros, llama al wrapper de optipfair.bias.visualize_pca y
-    devuelve la imagen PNG/SVG resultante.
+    Receives the parameters, calls the wrapper for optipfair.bias.visualize_pca,
+    and returns the resulting PNG/SVG image.
     """
-    # 1. Ejecutar la generación de la imagen y obtener la ruta al fichero
+    # 1. Execute the image generation and get the file path
     try:
         filepath = run_visualize_pca(
             model_name=req.model_name,
@@ -44,15 +44,15 @@ async def visualize_pca_endpoint(req: VisualizePCARequest):
             pair_index=req.pair_index,
         )
     except Exception as e:
-        # Logueamos la traza completa para depurar
-        logger.exception("❌ Error en visualize_pca_endpoint")
-        # Y devolvemos el mensaje al cliente
+        # Log the full trace for debugging
+        logger.exception("❌ Error in visualize_pca_endpoint")
+        # And return the message to the client
         raise HTTPException(status_code=500, detail=str(e))
-    # 2. Verificar que el fichero exista
+    # 2. Verify that the file exists
     if not filepath or not os.path.isfile(filepath):
         raise HTTPException(status_code=500, detail="Image file not found after generation")
 
-    # 3. Devolver el fichero directamente al cliente
+    # 3. Return the file directly to the client
     return FileResponse(
         path=filepath,
         media_type=f"image/{req.figure_format}",
@@ -62,22 +62,29 @@ async def visualize_pca_endpoint(req: VisualizePCARequest):
 
 @router.post("/mean-diff", response_class=FileResponse)
 async def visualize_mean_diff_endpoint(req: VisualizeMeanDiffRequest):
+    """
+    Receives the parameters, calls the wrapper for optipfair.bias.visualize_mean_differences,
+    and returns the resulting PNG/SVG image.
+    """
     try:
         filepath = run_visualize_mean_diff(
             model_name=req.model_name,
             prompt_pair=tuple(req.prompt_pair),
-            layer_type=req.layer_type,  # Cambiado de layer_key a layer_type
+            layer_type=req.layer_type,  # Changed from layer_key to layer_type
             figure_format=req.figure_format,
             output_dir=req.output_dir,
             pair_index=req.pair_index,
         )
     except Exception as e:
+        # Log the full trace for debugging
         logger.exception("Error in mean-diff endpoint")
         raise HTTPException(status_code=500, detail=str(e))
 
+    # Verify that the file exists
     if not os.path.isfile(filepath):
         raise HTTPException(status_code=500, detail="Image file not found")
 
+    # Return the file directly to the client
     return FileResponse(
         path=filepath,
         media_type=f"image/{req.figure_format}",
@@ -87,6 +94,10 @@ async def visualize_mean_diff_endpoint(req: VisualizeMeanDiffRequest):
 
 @router.post("/heatmap", response_class=FileResponse)
 async def visualize_heatmap_endpoint(req: VisualizeHeatmapRequest):
+    """
+    Receives the parameters, calls the wrapper for optipfair.bias.visualize_heatmap,
+    and returns the resulting PNG/SVG image.
+    """
     try:
         filepath = run_visualize_heatmap(
             model_name=req.model_name,
@@ -96,12 +107,15 @@ async def visualize_heatmap_endpoint(req: VisualizeHeatmapRequest):
             output_dir=req.output_dir,
         )
     except Exception as e:
+        # Log the full trace for debugging
         logger.exception("Error in heatmap endpoint")
         raise HTTPException(status_code=500, detail=str(e))
 
+    # Verify that the file exists
     if not os.path.isfile(filepath):
         raise HTTPException(status_code=500, detail="Image file not found")
 
+    # Return the file directly to the client
     return FileResponse(
         path=filepath,
         media_type=f"image/{req.figure_format}",

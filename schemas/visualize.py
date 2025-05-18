@@ -23,7 +23,7 @@ class VisualizePCARequest(BaseModel):
 class VisualizeMeanDiffRequest(BaseModel):
     model_name: str
     prompt_pair: List[str]
-    layer_type: str  # Cambiado de layer_key a layer_type
+    layer_type: str  # Changed from layer_key to layer_type
     figure_format: str = "png"
     output_dir: Optional[str] = None
     pair_index: int = 0

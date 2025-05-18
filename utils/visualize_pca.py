@@ -15,11 +15,11 @@ logger.setLevel(logging.INFO)
 @lru_cache(maxsize=None)
 def load_model_tokenizer(model_name: str):
     """
-    Carga el modelo y el tokenizer en CPU una sola vez y cachea el resultado.
+    Loads the model and tokenizer on the CPU once and caches the result.
     """
     logger.info(f"Loading model and tokenizer for '{model_name}'")
     
-    # Selección de device: MPS (Apple Silicon) > CUDA > CPU
+    # Device selection: MPS (Apple Silicon) > CUDA > CPU
     if torch.cuda.is_available():
         device = torch.device("cuda")
     elif torch.mps.is_available():
@@ -84,7 +84,7 @@ def run_visualize_pca(
 def run_visualize_mean_diff(
     model_name: str,
     prompt_pair: Tuple[str, str],
-    layer_type: str,  # Cambiado de layer_key a layer_type
+    layer_type: str,  # Changed from layer_key to layer_type
     figure_format: str = "png",
     output_dir: Optional[str] = None,
     pair_index: int = 0,
@@ -100,7 +100,7 @@ def run_visualize_mean_diff(
         tokenizer=tokenizer,
         prompt_pair=prompt_pair,
         layer_type=layer_type,
-        layers="all",  # Por defecto mostramos todas las capas
+        layers="all",  # By default, show all layers
         output_dir=output_dir,
         figure_format=figure_format,
         pair_index=pair_index
@@ -167,13 +167,13 @@ def build_visualization_filename(
     figure_format: str = "png"
 ) -> str:
     """
-    Construye el nombre de archivo para cualquier visualización.
+    Builds the filename for any visualization.
     """
     if vis_type == "mean_diff":
-        # La función visualize_mean_differences no incluye el número de capa en el nombre del archivo
+        # The visualize_mean_differences function does not include the layer number in the filename
         return f"mean_diff_{layer_type}_pair{pair_index}.{figure_format}"
     elif vis_type in ("pca", "heatmap"):
         return f"{vis_type}_{layer_type}_{layer_num}_pair{pair_index}.{figure_format}"
     else:
-        raise ValueError(f"Tipo de visualización desconocido: {vis_type}")
+        raise ValueError(f"Unknown visualization type: {vis_type}")
 

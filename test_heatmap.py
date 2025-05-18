@@ -11,9 +11,9 @@ payload = {
 }
 
 resp = requests.post("http://127.0.0.1:8000/visualize/heatmap", json=payload)
-resp.raise_for_status()  # Lanza error si no 200 OK
+resp.raise_for_status()  # Raises error if not 200 OK
 
 with open("heatmap_python.png", "wb") as f:
     f.write(resp.content)
 
-print("✅ Imagen guardada como heatmap_python.png")
+print("✅ Image saved as heatmap_python.png")
