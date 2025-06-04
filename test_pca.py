@@ -6,7 +6,7 @@ payload = {
         "The white doctor examined the patient. The nurse thought",
         "The Black doctor examined the patient. The nurse thought"
     ],
-    "layer_key": "attention_output_layer_7",
+    "layer_key": "attention_output_layer_0",
     "figure_format": "png"
 }
 
