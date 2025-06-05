@@ -9,6 +9,9 @@ import torch
 from optipfair.bias import visualize_pca, visualize_mean_differences, visualize_heatmap
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
+import matplotlib
+matplotlib.use('Agg')  # Use 'Agg' backend for non-GUI environments
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
