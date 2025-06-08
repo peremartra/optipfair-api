@@ -20,12 +20,97 @@ This microservice provides endpoints to generate and download visualizations of 
 
 * Python 3.10 or higher
 * Git
+* **Docker & Docker Compose** (recommended for easy deployment)
 * Optional: Mac (Apple Silicon) or NVIDIA GPU for hardware acceleration (MPS/CUDA)
 * Internet connection to download models from Hugging Face Hub
 
 ---
 
-## 🛠 Installation
+## 🐳 Docker Deployment (Recommended)
+
+The easiest way to run OptiPFair-API is using Docker Compose, which automatically handles all dependencies and services.
+
+### Quick Start with Docker
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/your_username/optipfair-api.git
+cd optipfair-api
+
+# 2. Start the entire stack
+docker-compose up -d
+
+# 3. Access the application
+# Frontend (Gradio): http://localhost:7860
+# Backend API docs: http://localhost:8000/docs
+```
+
+### Docker Commands
+
+```bash
+# Start services (detached mode)
+docker-compose up -d
+
+# View logs in real-time
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+
+# Rebuild after code changes
+docker-compose up --build
+
+# Check service status
+docker-compose ps
+```
+
+### Docker Architecture
+
+```
+┌─────────────────────────────────────┐
+│           docker-compose            │
+├─────────────────┬───────────────────┤
+│   Backend       │    Frontend       │
+│   (FastAPI)     │    (Gradio)       │
+│   Port: 8000    │    Port: 7860     │
+└─────────────────┴───────────────────┘
+```
+
+**Features:**
+- ✅ **Automatic model caching** - Downloads models once, reuses them
+- ✅ **Health monitoring** - Services restart automatically if they fail  
+- ✅ **Persistent storage** - Model cache survives container restarts
+- ✅ **Production ready** - Secure, non-root containers
+- ✅ **Cross-platform** - Works on Mac, Linux, Windows
+
+---
+
+## 🌐 Try Online (HF Spaces)
+
+**🚀 Zero Installation Required!**
+
+You can try OptiPFair-API directly in your browser without any setup:
+
+**[🔗 OptipFair Bias Analyzer on Hugging Face Spaces](https://huggingface.co/spaces/oopere/optipfair-bias-analyzer)**
+
+**Features:**
+- ✅ **Instant access** - No installation required
+- ✅ **GPU acceleration** - Faster model loading and processing  
+- ✅ **Pre-loaded models** - Ready to use immediately
+- ✅ **Full functionality** - All three visualization types (PCA, Mean Diff, Heatmap)
+- ✅ **Public sharing** - Share results with colleagues
+
+**Perfect for:**
+- 🧪 **Quick testing** of bias analysis concepts
+- 📚 **Learning and experimentation** 
+- 🎯 **Demos and presentations**
+- 🔄 **Comparing with local deployment**
+
+---
+
+## 🛠 Manual Installation (Alternative)
+
+If you prefer to run without Docker:
 
 ```bash
 # 1. Clone the repository
@@ -47,19 +132,18 @@ print("CUDA available?", torch.cuda.is_available())
 EOF
 ```
 
----
-
-## 🚀 Running the Server
-
-With the virtual environment activated, start the API:
+### Running Manually
 
 ```bash
+# Terminal 1: Start FastAPI backend
 uvicorn main:app --reload
+
+# Terminal 2: Start Gradio frontend  
+python gradio_app.py
 ```
 
-* Server URL: `http://127.0.0.1:8000`
-* Swagger UI:   `http://127.0.0.1:8000/docs`
-* Redoc:        `http://127.0.0.1:8000/redoc`
+* Backend: `http://127.0.0.1:8000`
+* Frontend: `http://127.0.0.1:7860`
 
 ---
 
@@ -102,7 +186,7 @@ Generates a PCA scatter plot comparing activations for two prompts.
 **Example using `curl`:**
 
 ```bash
-curl -X POST http://127.0.0.1:8000/visualize/pca \
+curl -X POST http://localhost:8000/visualize/pca \
   -H "Content-Type: application/json" \
   -d '{
         "model_name": "meta-llama/Llama-3.2-1B",
@@ -131,7 +215,7 @@ payload = {
     "figure_format": "png"
 }
 
-resp = requests.post("http://127.0.0.1:8000/visualize/pca", json=payload)
+resp = requests.post("http://localhost:8000/visualize/pca", json=payload)
 resp.raise_for_status()
 
 with open("pca_result.png", "wb") as f:
@@ -184,7 +268,7 @@ payload = {
     "figure_format": "png"
 }
 
-resp = requests.post("http://127.0.0.1:8000/visualize/mean-diff", json=payload)
+resp = requests.post("http://localhost:8000/visualize/mean-diff", json=payload)
 resp.raise_for_status()
 
 with open("mean_diff_result.png", "wb") as f:
@@ -229,7 +313,7 @@ payload = {
     "figure_format": "png"
 }
 
-resp = requests.post("http://127.0.0.1:8000/visualize/heatmap", json=payload)
+resp = requests.post("http://localhost:8000/visualize/heatmap", json=payload)
 resp.raise_for_status()
 
 with open("heatmap_result.png", "wb") as f:
@@ -245,23 +329,70 @@ print("Saved heatmap visualization to heatmap_result.png")
 ```
 optipfair-api/           # Repository root
 ├── main.py              # FastAPI application entrypoint
+├── gradio_app.py        # Gradio frontend application
+├── docker-compose.yml   # Docker orchestration configuration
+├── Dockerfile.backend   # Backend container definition
+├── Dockerfile.frontend  # Frontend container definition
+├── requirements-docker.txt # Optimized dependencies for containers
 ├── routers/             # API route modules
 │   └── visualize.py     # Routes for /visualize/*
 ├── schemas/             # Pydantic request/response models
 │   └── visualize.py     # Request schemas for visualizations
 ├── utils/               # Internal utility functions
 │   └── visualize_pca.py # Wrappers for optipfair visualization functions
+├── hf-spaces/           # Hugging Face Spaces deployment
 └── README.md            # Project documentation
 ```
 
 ---
 
-## ✅ Next Steps
+## 🚀 Deployment Options
 
-* Improve documentation and usage examples
-* Add `/bias-report` endpoint for comprehensive reports
-* Add automated tests and CI/CD pipeline
-* Dockerize the service and deploy (e.g., on Hugging Face Spaces)
+### 1. 🌐 Hugging Face Spaces (Try Now!)
+**[🔗 OptipFair Bias Analyzer](https://huggingface.co/spaces/oopere/optipfair-bias-analyzer)**
+
+**Pros:** Zero setup, GPU acceleration, instant access, public sharing  
+**Cons:** Limited to HF Spaces platform, shared resources
+
+### 2. 🐳 Docker (Recommended for Local/Production)
+```bash
+docker-compose up -d
+```
+**Pros:** Easy setup, automatic dependencies, production-ready, full control  
+**Cons:** Requires Docker installation
+
+### 3. 📱 Manual Installation
+Traditional Python virtual environment setup.
+
+**Pros:** Full control, native performance (MPS on Mac), development flexibility  
+**Cons:** Manual dependency management, longer setup time
+
+---
+
+## 📖 Citation
+
+If you use OptipFair-API in your research or projects, please cite both the API and the underlying library:
+
+### OptipFair Library (Core Implementation)
+```bibtex
+@software{optipfair,
+  author = {Pere Martra},
+  title = {OptipFair: Structured Pruning and Bias Visualization for Large Language Models},
+  url = {https://github.com/peremartra/optipfair},
+  version = {0.1.3},
+  year = {2024}
+}
+```
+
+### OptipFair-API (REST Interface)
+```bibtex
+@software{optipfair_api,
+  author = {Pere Martra},
+  title = {OptipFair-API: REST API for LLM Bias Analysis and Visualization},
+  url = {https://github.com/peremartra/optipfair-api},
+  year = {2025}
+}
+```
 
 ---
 
