@@ -15,30 +15,58 @@ matplotlib.use('Agg')  # Use 'Agg' backend for non-GUI environments
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+# Configurar timeouts más largos para Docker
+os.environ['HF_HUB_DOWNLOAD_TIMEOUT'] = '300'  # 5 minutos
+os.environ['TRANSFORMERS_OFFLINE'] = '0'  # Permitir descargas
+
 @lru_cache(maxsize=None)
 def load_model_tokenizer(model_name: str):
     """
-    Loads the model and tokenizer on the CPU once and caches the result.
+    Loads the model and tokenizer with extended timeouts for Docker environments
     """
     logger.info(f"Loading model and tokenizer for '{model_name}'")
     
-    # Device selection: MPS (Apple Silicon) > CUDA > CPU
+    # Get HF token from environment for gated models
+    hf_token = os.getenv("HF_TOKEN")
+    
+    # Device selection: CUDA > CPU (MPS no disponible en Docker)
     if torch.cuda.is_available():
         device = torch.device("cuda")
-    elif torch.mps.is_available():
-        device = torch.device("mps")
+        logger.info("Using CUDA GPU")
     else:
         device = torch.device("cpu")
-    logger.info(f"Using device: {device}")
+        logger.info("Using CPU (MPS not available in Docker containers)")
 
-    model = AutoModelForCausalLM.from_pretrained(model_name)
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    try:
+        # Cargar modelo con timeouts extendidos
+        logger.info(f"Downloading/loading model from Hub... (this may take several minutes)")
+        
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            token=hf_token,
+            resume_download=True,      # Reanudar descargas interrumpidas
+            local_files_only=False,    # Permitir descargas
+            trust_remote_code=True,    # Para modelos custom
+            torch_dtype=torch.float32, # Usar float32 en CPU
+            low_cpu_mem_usage=True     # Optimizar uso de memoria
+        )
+        
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_name,
+            token=hf_token,
+            resume_download=True,
+            local_files_only=False,
+            trust_remote_code=True
+        )
 
-    model = model.to(device)
-    
-    logger.info(f"Model loaded on device: {next(model.parameters()).device}")
-
-    return model, tokenizer
+        model = model.to(device)
+        
+        logger.info(f"Model loaded successfully on device: {device}")
+        return model, tokenizer
+        
+    except Exception as e:
+        logger.error(f"Error loading model {model_name}: {str(e)}")
+        raise e
 
 def run_visualize_pca(
     model_name: str,
@@ -179,4 +207,3 @@ def build_visualization_filename(
         return f"{vis_type}_{layer_type}_{layer_num}_pair{pair_index}.{figure_format}"
     else:
         raise ValueError(f"Unknown visualization type: {vis_type}")
-

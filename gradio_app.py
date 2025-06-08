@@ -900,10 +900,9 @@ if __name__ == "__main__":
     # Create and launch the interface
     interface = create_interface()
     
-    # Launch configuration for different environments
-    if os.getenv("SPACES_ZERO_GPU"):  # Hugging Face Spaces with Zero GPU
-        interface.launch(server_name="0.0.0.0", server_port=7860)
-    elif os.getenv("HF_SPACE"):  # General Hugging Face Spaces
-        interface.launch(server_name="0.0.0.0", server_port=7860, share=False)
-    else:  # Local development
-        interface.launch(server_name="127.0.0.1", server_port=7860, share=False)
+    # Configuración unificada - funciona en local, Docker y HF Spaces
+    interface.launch(
+        server_name="0.0.0.0", 
+        server_port=7860, 
+        share=False
+    )
