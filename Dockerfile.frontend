@@ -1,0 +1,42 @@
+# Dockerfile.frontend - Gradio Frontend para OptipFair-API
+FROM python:3.11-slim
+
+LABEL maintainer="pere@optipfair.com" 
+LABEL description="OptipFair API Frontend - Gradio Interface"
+
+# Variables de entorno
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PIP_NO_CACHE_DIR=1
+
+# URL del backend (se configura en docker-compose)
+ENV FASTAPI_BASE_URL=http://backend:8000
+
+WORKDIR /app
+
+# Instalar dependencias mínimas del sistema
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalar dependencias Python (mismo archivo que backend)
+COPY requirements-docker.txt .
+RUN pip install --no-cache-dir -r requirements-docker.txt
+
+# Copiar solo el archivo de Gradio
+COPY gradio_app.py .
+
+# Crear usuario no-root
+RUN useradd --create-home --shell /bin/bash optipfair
+RUN chown -R optipfair:optipfair /app
+USER optipfair
+
+# Exponer puerto de Gradio
+EXPOSE 7860
+
+# Health check para Gradio
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:7860 || exit 1
+
+# Comando de inicio
+CMD ["python", "gradio_app.py"]

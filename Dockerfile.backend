@@ -1,0 +1,44 @@
+# Dockerfile.backend - FastAPI Backend para OptipFair-API
+FROM python:3.11-slim
+
+LABEL maintainer="pere@optipfair.com"
+LABEL description="OptipFair API Backend - FastAPI Service"
+
+# Variables de entorno para optimizar Python en contenedores
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PIP_NO_CACHE_DIR=1
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Instalar dependencias del sistema necesarias para ML/AI
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copiar requirements y instalar dependencias (cache layer)
+COPY requirements-docker.txt .
+RUN pip install --no-cache-dir -r requirements-docker.txt
+
+# Copiar código fuente del backend
+COPY main.py .
+COPY routers/ ./routers/
+COPY schemas/ ./schemas/
+COPY utils/ ./utils/
+
+# Crear usuario no-root por seguridad
+RUN useradd --create-home --shell /bin/bash optipfair
+RUN chown -R optipfair:optipfair /app
+USER optipfair
+
+# Exponer puerto del FastAPI
+EXPOSE 8000
+
+# Health check para monitoreo
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:8000/ping || exit 1
+
+# Comando de inicio
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

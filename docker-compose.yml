@@ -1,0 +1,50 @@
+# docker-compose.yml - OptipFair-API Full Stack
+version: '3.8'
+
+services:
+  # Backend FastAPI Service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: optipfair-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - optipfair-network
+
+  # Frontend Gradio Service  
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: optipfair-frontend
+    ports:
+      - "7860:7860"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - FASTAPI_BASE_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - optipfair-network
+
+# Red personalizada para comunicación entre servicios
+networks:
+  optipfair-network:
+    driver: bridge
+
+# Volúmenes (para futuras extensiones)
+volumes:
+  optipfair-data:
