@@ -1,4 +1,4 @@
-# OptiPFair-API MVP
+# OptiPFair-API 
 
 A REST API built with FastAPI that exposes the bias visualization capabilities of the OptiPFair library.
 
