@@ -2,7 +2,8 @@
 
 A REST API built with FastAPI that exposes the bias visualization capabilities of the OptiPFair library.
 
-##Visualizations obtained with optiPfair analyzing the LLaMA 2.3-1B model for race bias.
+## Visualizations obtained with optiPfair analyzing the LLaMA 2.3-1B model for race bias.
+
 | ![Mean Image Differences](https://github.com/peremartra/optipfair/blob/main/images/mean_image_differences.png) | ![activation_differences_layer.png](https://github.com/peremartra/optipfair/blob/main/images/activation_differences_layer.png) | ![pca_analysis.png](https://github.com/peremartra/optipfair/blob/main/images/pca_analysis.png)
 | ---| --- | --- |
 ---
