@@ -22,6 +22,9 @@ def load_model_tokenizer(model_name: str):
     """
     logger.info(f"Loading model and tokenizer for '{model_name}'")
     
+    # Get HF token from environment for gated models
+    hf_token = os.getenv("HF_TOKEN")
+    
     # Device selection: MPS (Apple Silicon) > CUDA > CPU
     if torch.cuda.is_available():
         device = torch.device("cuda")
@@ -31,8 +34,14 @@ def load_model_tokenizer(model_name: str):
         device = torch.device("cpu")
     logger.info(f"Using device: {device}")
 
-    model = AutoModelForCausalLM.from_pretrained(model_name)
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        token=hf_token  # ← AÑADIR ESTA LÍNEA
+    )
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_name,
+        token=hf_token  # ← AÑADIR ESTA LÍNEA
+    )
 
     model = model.to(device)
     
