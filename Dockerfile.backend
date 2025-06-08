@@ -10,6 +10,12 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PIP_NO_CACHE_DIR=1
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 
+# Variables de entorno para HuggingFace
+ENV HF_HOME=/app/.cache/huggingface
+ENV TRANSFORMERS_CACHE=/app/.cache/huggingface/transformers
+ENV HF_HUB_DOWNLOAD_TIMEOUT=300
+ENV TRANSFORMERS_OFFLINE=0
+
 # Instalar dependencias del sistema necesarias para ML/AI
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -30,7 +36,12 @@ COPY utils/ ./utils/
 
 # Crear usuario no-root por seguridad
 RUN useradd --create-home --shell /bin/bash optipfair
-RUN chown -R optipfair:optipfair /app
+
+# Crear directorio de cache con permisos correctos
+RUN mkdir -p /app/.cache/huggingface && \
+    chown -R optipfair:optipfair /app && \
+    chown -R optipfair:optipfair /app/.cache
+
 USER optipfair
 
 # Exponer puerto del FastAPI

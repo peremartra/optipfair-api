@@ -12,7 +12,6 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - HF_HOME=/app/.cache/huggingface
-      - TRANSFORMERS_CACHE=/app/.cache/huggingface/transformers
       - HF_HUB_DOWNLOAD_TIMEOUT=300
       - CURL_CA_BUNDLE=
       - TRANSFORMERS_OFFLINE=0

@@ -28,7 +28,12 @@ COPY gradio_app.py .
 
 # Crear usuario no-root
 RUN useradd --create-home --shell /bin/bash optipfair
-RUN chown -R optipfair:optipfair /app
+
+# Crear directorio de cache con permisos correctos
+RUN mkdir -p /app/.cache/huggingface && \
+    chown -R optipfair:optipfair /app && \
+    chown -R optipfair:optipfair /app/.cache
+
 USER optipfair
 
 # Exponer puerto de Gradio
