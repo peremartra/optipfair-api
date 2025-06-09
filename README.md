@@ -1,28 +1,80 @@
 # OptiPFair-API 
 
+<!-- Badges profesionales -->
+<div align="center">
+
+![Tests](https://github.com/peremartra/optipfair-api/workflows/Tests/badge.svg)
+![Code Quality](https://github.com/peremartra/optipfair-api/workflows/Code%20Quality/badge.svg)
+[![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
+[![HF Spaces](https://img.shields.io/badge/🤗%20HF%20Spaces-Live%20Demo-yellow)](https://huggingface.co/spaces/oopere/optipfair-bias-analyzer)
+
+[![GitHub stars](https://img.shields.io/github/stars/peremartra/optipfair-api?style=social)](https://github.com/peremartra/optipfair-api/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/peremartra/optipfair-api?style=social)](https://github.com/peremartra/optipfair-api/network/members)
+[![GitHub issues](https://img.shields.io/github/issues/peremartra/optipfair-api)](https://github.com/peremartra/optipfair-api/issues)
+
+</div>
+
+---
+
 A REST API built with FastAPI that exposes the bias visualization capabilities of the OptiPFair library.
 
-## Visualizations obtained with optiPfair analyzing the LLaMA 2.3-1B model for race bias.
+## ✨ Key Features
+
+- 🔍 **Three Visualization Types** - PCA, Mean Difference, and Heatmap analysis
+- 🚀 **FastAPI Backend** - High-performance REST API with automatic documentation
+- 🎨 **Gradio Frontend** - User-friendly web interface for interactive analysis
+- 🐳 **Docker Ready** - One-command deployment with Docker Compose
+- 🌐 **Online Demo** - Try it instantly on Hugging Face Spaces
+- 🔧 **Production Ready** - CI/CD, tests, and quality checks included
+
+## 🎯 Quick Start
+
+### Option 1: Try Online (Zero Setup)
+**[🚀 Launch Demo on HF Spaces](https://huggingface.co/spaces/oopere/optipfair-bias-analyzer)**
+
+### Option 2: Docker (Recommended)
+```bash
+git clone https://github.com/peremartra/optipfair-api.git
+cd optipfair-api
+docker-compose up -d
+
+# Access at:
+# Frontend: http://localhost:7860
+# API Docs: http://localhost:8000/docs
+```
+
+## 📊 Bias Analysis Examples
+
+Visualizations obtained with OptiPFair analyzing the LLaMA 3.2-1B model for racial bias:
 
 | ![Mean Image Differences](https://github.com/peremartra/optipfair/blob/main/images/mean_image_differences.png) | ![activation_differences_layer.png](https://github.com/peremartra/optipfair/blob/main/images/activation_differences_layer.png) | ![pca_analysis.png](https://github.com/peremartra/optipfair/blob/main/images/pca_analysis.png)
 | ---| --- | --- |
+| **Mean Differences** | **Layer Activation** | **PCA Analysis** |
+
 ---
 
 ## 📋 Overview
 
 This microservice provides endpoints to generate and download visualizations of activation patterns in transformer-based LLMs (e.g., LLaMA) using the **OptiPFair** toolkit.
 
-* **Main endpoints:** 
-  * `POST /visualize/pca` - PCA visualization of activations
-  * `POST /visualize/mean-diff` - Mean activation difference across layers
-  * `POST /visualize/heatmap` - Heatmap of activation differences
-* **Response:** Binary image (PNG, SVG, or PDF) showing the requested visualization.
+### 🎯 Main Endpoints
+- `POST /visualize/pca` - PCA visualization of activations
+- `POST /visualize/mean-diff` - Mean activation difference across layers
+- `POST /visualize/heatmap` - Heatmap of activation differences
+- **Response:** Binary image (PNG, SVG, or PDF) showing the requested visualization
+
+### 🔧 What's New in This Version
+- ✅ **CI/CD Pipeline** - Automated testing and code quality checks
+- ✅ **Enhanced Validation** - Better error handling and input validation
+- ✅ **Docker Optimization** - Faster builds and improved caching
+- ✅ **Code Quality** - Black, isort, and flake8 integration
 
 ---
 
 ## ⚙️ Requirements
 
-* Python 3.10 or higher
+* Python 3.11 or higher
 * Git
 * **Docker & Docker Compose** (recommended for easy deployment)
 * Optional: Mac (Apple Silicon) or NVIDIA GPU for hardware acceleration (MPS/CUDA)
@@ -38,7 +90,7 @@ The easiest way to run OptiPFair-API is using Docker Compose, which automaticall
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your_username/optipfair-api.git
+git clone https://github.com/peremartra/optipfair-api.git
 cd optipfair-api
 
 # 2. Start the entire stack
@@ -118,7 +170,7 @@ If you prefer to run without Docker:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your_username/optipfair-api.git
+git clone https://github.com/peremartra/optipfair-api.git
 cd optipfair-api
 
 # 2. Create and activate a virtual environment
@@ -126,7 +178,8 @@ python3 -m venv .venv
 source .venv/bin/activate
 
 # 3. Install dependencies
-pip install "fastapi" "uvicorn" "optipfair[viz]" "pytest" "requests"
+pip install -r requirements-docker.txt
+pip install pytest httpx  # For testing
 
 # 4. (Optional) Verify PyTorch MPS/CUDA support
 python3 - <<'EOF'
@@ -151,7 +204,33 @@ python gradio_app.py
 
 ---
 
-## 🔍 Endpoints
+## 🧪 Testing & Development
+
+### Run Tests
+```bash
+# Run the test suite
+pytest tests/test_api_endpoints.py tests/test_validation.py -v
+
+# Run with coverage
+pytest --cov=. tests/
+```
+
+### Code Quality
+```bash
+# Format code
+black .
+isort .
+
+# Check code quality
+flake8 .
+
+# Run all quality checks (same as CI/CD)
+black . && isort . && flake8 . && pytest tests/test_api_endpoints.py tests/test_validation.py
+```
+
+---
+
+## 🔍 API Documentation
 
 ### Health Check
 
@@ -160,7 +239,6 @@ GET /ping
 ```
 
 **Response:**
-
 ```json
 { "message": "pong" }
 ```
@@ -338,12 +416,19 @@ optipfair-api/           # Repository root
 ├── Dockerfile.backend   # Backend container definition
 ├── Dockerfile.frontend  # Frontend container definition
 ├── requirements-docker.txt # Optimized dependencies for containers
+├── .github/             # CI/CD workflows
+│   └── workflows/
+│       ├── test.yml     # Automated testing
+│       └── code-quality.yml # Code quality checks
 ├── routers/             # API route modules
 │   └── visualize.py     # Routes for /visualize/*
 ├── schemas/             # Pydantic request/response models
 │   └── visualize.py     # Request schemas for visualizations
 ├── utils/               # Internal utility functions
 │   └── visualize_pca.py # Wrappers for optipfair visualization functions
+├── tests/               # Test suite
+│   ├── test_api_endpoints.py # API endpoint tests
+│   └── test_validation.py    # Input validation tests
 ├── hf-spaces/           # Hugging Face Spaces deployment
 └── README.md            # Project documentation
 ```
@@ -370,6 +455,31 @@ Traditional Python virtual environment setup.
 
 **Pros:** Full control, native performance (MPS on Mac), development flexibility  
 **Cons:** Manual dependency management, longer setup time
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our contributing guidelines:
+
+1. **Fork the repository**
+2. **Create a feature branch:** `git checkout -b feature/amazing-feature`
+3. **Make your changes and add tests**
+4. **Ensure code quality:** `black . && isort . && flake8 .`
+5. **Run tests:** `pytest tests/`
+6. **Commit your changes:** `git commit -m 'Add amazing feature'`
+7. **Push to the branch:** `git push origin feature/amazing-feature`
+8. **Open a Pull Request**
+
+### Development Setup
+```bash
+git clone https://github.com/peremartra/optipfair-api.git
+cd optipfair-api
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-docker.txt
+pip install black isort flake8 pytest httpx
+```
 
 ---
 
@@ -402,4 +512,23 @@ If you use OptipFair-API in your research or projects, please cite both the API 
 
 ## 📄 License
 
-Apache License 2.0 © Pere Martra
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- [OptipFair Library](https://github.com/peremartra/optipfair) - Core bias visualization toolkit
+- [FastAPI](https://fastapi.tiangolo.com/) - Modern web framework for building APIs
+- [Gradio](https://gradio.app/) - User-friendly machine learning interfaces
+- [Hugging Face](https://huggingface.co/) - Transformers and model hosting platform
+
+---
+
+<div align="center">
+
+**[⭐ Star this repo](https://github.com/peremartra/optipfair-api/stargazers) | [🐛 Report Bug](https://github.com/peremartra/optipfair-api/issues) | [💡 Request Feature](https://github.com/peremartra/optipfair-api/issues)**
+
+Made with ❤️ by [Pere Martra](https://github.com/peremartra)
+
+</div>
