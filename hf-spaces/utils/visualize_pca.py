@@ -7,8 +7,7 @@ from typing import List, Optional, Tuple, Union
 
 import matplotlib
 import torch
-from optipfair.bias import (visualize_heatmap, visualize_mean_differences,
-                            visualize_pca)
+from optipfair.bias import visualize_heatmap, visualize_mean_differences, visualize_pca
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 matplotlib.use("Agg")  # Use 'Agg' backend for non-GUI environments
