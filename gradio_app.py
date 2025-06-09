@@ -641,7 +641,7 @@ def create_interface():
         )
 
         # Main tabs
-        with gr.Tabs()
+        with gr.Tabs():
             #################
             # PCA Visualization Tab
             ##############
