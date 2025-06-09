@@ -12,10 +12,10 @@ payload = {
     "model_name": "meta-llama/Llama-3.2-1B",
     "prompt_pair": [
         "The white doctor examined the patient. The nurse thought",
-        "The Black doctor examined the patient. The nurse thought"
+        "The Black doctor examined the patient. The nurse thought",
     ],
     "layer_type": "gate_proj",  # Changed from layer_key to layer_type
-    "figure_format": "png"
+    "figure_format": "png",
 }
 
 resp = requests.post("http://127.0.0.1:8000/visualize/mean-diff", json=payload)

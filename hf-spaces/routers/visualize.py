@@ -22,6 +22,7 @@ router = APIRouter(
     tags=["visualization"],
 )
 
+
 @router.post(
     "/pca",
     summary="Generates and returns the PCA visualization of activations",
@@ -50,15 +51,20 @@ async def visualize_pca_endpoint(req: VisualizePCARequest):
         raise HTTPException(status_code=500, detail=str(e))
     # 2. Verify that the file exists
     if not filepath or not os.path.isfile(filepath):
-        raise HTTPException(status_code=500, detail="Image file not found after generation")
+        raise HTTPException(
+            status_code=500, detail="Image file not found after generation"
+        )
 
     # 3. Return the file directly to the client
     return FileResponse(
         path=filepath,
         media_type=f"image/{req.figure_format}",
         filename=os.path.basename(filepath),
-        headers={"Content-Disposition": f'inline; filename="{os.path.basename(filepath)}"'},
+        headers={
+            "Content-Disposition": f'inline; filename="{os.path.basename(filepath)}"'
+        },
     )
+
 
 @router.post("/mean-diff", response_class=FileResponse)
 async def visualize_mean_diff_endpoint(req: VisualizeMeanDiffRequest):
@@ -89,8 +95,11 @@ async def visualize_mean_diff_endpoint(req: VisualizeMeanDiffRequest):
         path=filepath,
         media_type=f"image/{req.figure_format}",
         filename=os.path.basename(filepath),
-        headers={"Content-Disposition": f'inline; filename="{os.path.basename(filepath)}"'}
+        headers={
+            "Content-Disposition": f'inline; filename="{os.path.basename(filepath)}"'
+        },
     )
+
 
 @router.post("/heatmap", response_class=FileResponse)
 async def visualize_heatmap_endpoint(req: VisualizeHeatmapRequest):
@@ -120,5 +129,7 @@ async def visualize_heatmap_endpoint(req: VisualizeHeatmapRequest):
         path=filepath,
         media_type=f"image/{req.figure_format}",
         filename=os.path.basename(filepath),
-        headers={"Content-Disposition": f'inline; filename="{os.path.basename(filepath)}"'}
+        headers={
+            "Content-Disposition": f'inline; filename="{os.path.basename(filepath)}"'
+        },
     )
