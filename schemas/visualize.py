@@ -19,6 +19,12 @@ class VisualizePCARequest(BaseModel):
         if len(v) != 2:
             raise ValueError("prompt_pair must be a list of exactly two strings")
         return v
+    @field_validator("model_name")  # ← AÑADIR ESTE VALIDADOR
+    def model_name_not_empty(cls, v):
+        if not v or not v.strip():
+            raise ValueError("model_name cannot be empty")
+        return v.strip()
+
 
 class VisualizeMeanDiffRequest(BaseModel):
     model_name: str
@@ -33,6 +39,11 @@ class VisualizeMeanDiffRequest(BaseModel):
         if len(v) != 2:
             raise ValueError("prompt_pair must be a list of exactly two strings")
         return v
+    @field_validator("model_name")  # ← AÑADIR ESTE VALIDADOR
+    def model_name_not_empty(cls, v):
+        if not v or not v.strip():
+            raise ValueError("model_name cannot be empty")
+        return v.strip()
 
 class VisualizeHeatmapRequest(BaseModel):
     """
@@ -49,3 +60,8 @@ class VisualizeHeatmapRequest(BaseModel):
         if len(v) != 2:
             raise ValueError("prompt_pair must be a list of exactly two strings")
         return v
+    @field_validator("model_name")  # ← AÑADIR ESTE VALIDADOR
+    def model_name_not_empty(cls, v):
+        if not v or not v.strip():
+            raise ValueError("model_name cannot be empty")
+        return v.strip()
