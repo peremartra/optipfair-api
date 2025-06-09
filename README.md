@@ -46,7 +46,7 @@ docker-compose up -d
 
 ### Option 3: LLM-Assisted Development
 **Using ChatGPT, Claude, or other AI assistants?**
-📋 **Give them the [LLM Reference Manual](OptiPFair-API_LLM_Reference_Manual.md)** to generate perfect integration code!
+📋 **Give them the [LLM Reference Manual](OptiPFair-API_LLM_Reference_Manual.txt)** to generate perfect integration code!
 
 ## 📊 Bias Analysis Examples
 
@@ -241,7 +241,7 @@ black . && isort . && flake8 . && pytest tests/test_api_endpoints.py tests/test_
 - **ReDoc:** `http://localhost:8000/redoc` (alternative documentation)
 
 ### For LLM-Assisted Development
-📋 **[OptipFair-API LLM Reference Manual](OptiPFair-API_LLM_Reference_Manual.md)** - Perfect for ChatGPT, Claude, and other AI assistants to generate integration code.
+📋 **[OptipFair-API LLM Reference Manual](OptiPFair-API_LLM_Reference_Manual.txt)** - Perfect for ChatGPT, Claude, and other AI assistants to generate integration code.
 
 ### Health Check
 
