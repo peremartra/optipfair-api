@@ -1,0 +1,10 @@
+[flake8]
+max-line-length = 88  # Black usa 88, no 79
+extend-ignore = 
+    E203,  # whitespace before ':' (conflicto con Black)
+    W503,  # line break before binary operator (conflicto con Black)
+exclude = 
+    .git,
+    __pycache__,
+    .venv,
+    .pytest_cache
