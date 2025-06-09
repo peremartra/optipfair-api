@@ -27,11 +27,18 @@ jobs:
     - name: Check if formatting changed files
       run: |
         if [ -n "$(git status --porcelain)" ]; then
-          echo "❌ Code formatting issues found. Please run 'black .' locally."
+          echo "❌ Code formatting issues found. Please run 'black .' locally and commit the changes."
+          echo ""
+          echo "Files that need formatting:"
+          git status --porcelain
+          echo ""
+          echo "Diff of changes:"
           git diff
           exit 1
+        else
+          echo "✅ Code is properly formatted!"
         fi
-      
+        
     - name: Run isort (import sorting check)  
       run: isort --check-only --diff .
       
