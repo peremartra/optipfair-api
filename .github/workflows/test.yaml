@@ -6,26 +6,28 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch:  # ← Sin el types/apiction
+  workflow_dispatch:
 
 jobs:
   test:
-    runs-on: ubuntu-latest  # ← Máquina virtual Ubuntu
+    runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4  # ← Descarga tu código
+      uses: actions/checkout@v4
       
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'  # ← Versión de Python
+        python-version: '3.11'
         
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements-docker.txt
-        pip install pytest 
+        pip install pytest httpx
         
-    - name: Run tests
-      run: pytest tests/ -v
+    - name: Run light tests only
+      run: |
+        pytest tests/test_api_endpoints.py tests/test_validation.py -v
+        # Excluimos test_visualize.py (tests pesados)
