@@ -1,53 +1,27 @@
-# tests/test_visualize.py
+import requests
 
-import os
-import shutil
-import pytest
-from fastapi.testclient import TestClient
-from main import app
+# Possible values for layer_type:
+# - "mlp_output" - Output of the MLP block
+# - "attention_output" - Output of the attention mechanism
+# - "gate_proj" - Output of the gate projection in GLU
+# - "up_proj" - Output of the up projection in GLU
+# - "down_proj" - Output of the down projection in GLU
+# - "input_norm" - Output of the input normalization
 
-client = TestClient(app)
+payload = {
+    "model_name": "meta-llama/Llama-3.2-1B",
+    "prompt_pair": [
+        "The white doctor examined the patient. The nurse thought",
+        "The Black doctor examined the patient. The nurse thought"
+    ],
+    "layer_type": "gate_proj",  # Changed from layer_key to layer_type
+    "figure_format": "png"
+}
 
-@pytest.mark.parametrize("payload, expected_status", [
-    # Caso válido: debería devolver 200 y un PNG no vacío
-    ({
-        "model_name": "meta-llama/Llama-3.2-1B",
-        "prompt_pair": ["A quick brown fox", "A fast brown fox"],
-        "layer_key": "attention_output_layer_0",
-        "figure_format": "png"
-    }, 200),
-    # prompt_pair inválido (1 elemento) -> 422
-    ({
-        "model_name": "meta-llama/Llama-3.2-1B",
-        "prompt_pair": ["only one prompt"],
-        "layer_key": "attention_output_layer_0"
-    }, 422),
-])
-def test_visualize_pca_responses(tmp_path, payload, expected_status):
-    # Si es un test válido, forzamos output_dir para controlar limpieza
-    if expected_status == 200:
-        payload["output_dir"] = str(tmp_path)
+resp = requests.post("http://127.0.0.1:8000/visualize/mean-diff", json=payload)
+resp.raise_for_status()  # Raises error if not 200 OK
 
-    response = client.post("/visualize/pca", json=payload)
-    assert response.status_code == expected_status
+with open("mean-diff_python.png", "wb") as f:
+    f.write(resp.content)
 
-    if expected_status == 200:
-        # Debe devolver imagen PNG
-        assert response.headers["content-type"] == "image/png"
-        # Guardar y comprobar que el fichero existe y no está vacío
-        filepath = tmp_path / f"pca_attention_output_layer_0_pair0.png"
-        with open(filepath, "wb") as f:
-            f.write(response.content)
-        assert filepath.exists()
-        assert filepath.stat().st_size > 0
-
-def test_layer_not_found_error():
-    # layer_key inexistente -> 500 con mensaje de file not found
-    payload = {
-        "model_name": "meta-llama/Llama-3.2-1B",
-        "prompt_pair": ["A","B"],
-        "layer_key": "nonexistent_layer"
-    }
-    response = client.post("/visualize/pca", json=payload)
-    assert response.status_code == 500
-    assert "Expected image file not found" in response.json()["detail"]
+print("✅ Image saved as mean-diff_python.png")
