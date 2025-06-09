@@ -1,4 +1,6 @@
 # main.py
+import logging
+
 from fastapi import FastAPI
 
 from routers.visualize import router as visualize_router
@@ -14,7 +16,5 @@ async def ping():
 
 # Include our visualization router
 app.include_router(visualize_router)
-
-import logging
 
 logging.basicConfig(level=logging.INFO)
