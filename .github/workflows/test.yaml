@@ -28,6 +28,7 @@ jobs:
         pip install pytest httpx
         
     - name: Run light tests only
+      env:
+            PYTHONPATH: .  # ← Añadir el directorio actual al PYTHONPATH
       run: |
-        pytest tests/test_api_endpoints.py tests/test_validation.py -v
-        # Excluimos test_visualize.py (tests pesados)
+            pytest tests/test_api_endpoints.py tests/test_validation.py -v
