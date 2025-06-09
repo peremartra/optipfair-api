@@ -1,0 +1,30 @@
+name: Tests
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:  # ← Sin el types/apiction
+
+jobs:
+  test:
+    runs-on: ubuntu-latest  # ← Máquina virtual Ubuntu
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4  # ← Descarga tu código
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'  # ← Versión de Python
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest requests fastapi uvicorn optipfair[viz]
+        
+    - name: Run tests
+      run: pytest tests/ -v
