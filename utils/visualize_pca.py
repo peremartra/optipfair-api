@@ -41,7 +41,7 @@ def load_model_tokenizer(model_name: str):
     try:
         # Cargar modelo con timeouts extendidos
         logger.info(
-            f"Downloading/loading model from Hub... (this may take several minutes)"
+            "Downloading/loading model from Hub... (this may take several minutes)"
         )
 
         model = AutoModelForCausalLM.from_pretrained(

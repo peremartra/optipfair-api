@@ -3,7 +3,6 @@ import pytest
 from pydantic import ValidationError
 
 from schemas.visualize import (
-    VisualizeHeatmapRequest,
     VisualizeMeanDiffRequest,
     VisualizePCARequest,
 )

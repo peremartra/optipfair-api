@@ -1,5 +1,5 @@
 # schemas/visualize.py
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional
 
 from pydantic import BaseModel, field_validator
 
