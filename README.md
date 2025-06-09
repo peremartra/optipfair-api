@@ -44,6 +44,10 @@ docker-compose up -d
 # API Docs: http://localhost:8000/docs
 ```
 
+### Option 3: LLM-Assisted Development
+**Using ChatGPT, Claude, or other AI assistants?**
+📋 **Give them the [LLM Reference Manual](OptiPFair-API_LLM_Reference_Manual.md)** to generate perfect integration code!
+
 ## 📊 Bias Analysis Examples
 
 Visualizations obtained with OptiPFair analyzing the LLaMA 3.2-1B model for racial bias:
@@ -231,6 +235,13 @@ black . && isort . && flake8 . && pytest tests/test_api_endpoints.py tests/test_
 ---
 
 ## 🔍 API Documentation
+
+### Interactive API Docs
+- **Swagger UI:** `http://localhost:8000/docs` (when running locally)
+- **ReDoc:** `http://localhost:8000/redoc` (alternative documentation)
+
+### For LLM-Assisted Development
+📋 **[OptipFair-API LLM Reference Manual](OptiPFair-API_LLM_Reference_Manual.md)** - Perfect for ChatGPT, Claude, and other AI assistants to generate integration code.
 
 ### Health Check
 
@@ -458,6 +469,34 @@ Traditional Python virtual environment setup.
 
 ---
 
+## 🤖 LLM Integration Guide
+
+**For developers using AI assistants (ChatGPT, Claude, etc.) to generate code:**
+
+📋 **[OptipFair-API LLM Reference Manual](OptiPFair-API_LLM_Reference_Manual.md)**
+
+This comprehensive guide helps Large Language Models understand and generate correct code for OptipFair-API integration:
+
+```bash
+# Give this file to your favorite LLM assistant:
+# "Please use the OptipFair-API LLM Reference Manual to help me integrate with this API"
+```
+
+**What the manual includes:**
+- ✅ **Complete API schemas** - All endpoints with examples
+- ✅ **Request/response formats** - Exact JSON structures  
+- ✅ **Code generation templates** - Python, JavaScript, curl examples
+- ✅ **Common patterns** - Best practices for integration
+- ✅ **Error handling** - How to handle validation and server errors
+
+**Perfect for:**
+- 🤖 **AI-assisted development** - ChatGPT, Claude, GitHub Copilot
+- 📚 **Quick integration** - Generate client code in minutes
+- 🛠️ **Prototyping** - Rapid API testing and exploration
+- 📖 **Learning** - Understand API patterns and usage
+
+---
+
 ## 🤝 Contributing
 
 We welcome contributions! Please see our contributing guidelines:
@@ -522,6 +561,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 - [FastAPI](https://fastapi.tiangolo.com/) - Modern web framework for building APIs
 - [Gradio](https://gradio.app/) - User-friendly machine learning interfaces
 - [Hugging Face](https://huggingface.co/) - Transformers and model hosting platform
+- [LLM Reference Manual](OptiPFair-API_LLM_Reference_Manual.md) - AI-assisted development guide
 
 ---
 
