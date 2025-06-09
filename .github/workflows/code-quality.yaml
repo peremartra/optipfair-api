@@ -21,8 +21,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install black flake8 isort
         
-    - name: Run Black (formatter check)
-      run: black --check --diff .
+    - name: Run Black (auto-format)
+      run: black .
+      
+    - name: Check if formatting changed files
+      run: |
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "❌ Code formatting issues found. Please run 'black .' locally."
+          git diff
+          exit 1
+        fi
       
     - name: Run isort (import sorting check)  
       run: isort --check-only --diff .
