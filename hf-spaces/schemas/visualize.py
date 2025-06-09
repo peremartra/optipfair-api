@@ -1,6 +1,7 @@
 # schemas/visualize.py
+from typing import List, Optional, Tuple, Union
+
 from pydantic import BaseModel, field_validator
-from typing import List, Optional, Union, Tuple
 
 
 class VisualizePCARequest(BaseModel):

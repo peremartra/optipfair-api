@@ -1,11 +1,9 @@
 # tests/test_validation.py
 import pytest
 from pydantic import ValidationError
-from schemas.visualize import (
-    VisualizePCARequest,
-    VisualizeMeanDiffRequest,
-    VisualizeHeatmapRequest,
-)
+
+from schemas.visualize import (VisualizeHeatmapRequest,
+                               VisualizeMeanDiffRequest, VisualizePCARequest)
 
 
 def test_pca_request_valid():

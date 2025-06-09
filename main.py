@@ -1,5 +1,6 @@
 # main.py
 from fastapi import FastAPI
+
 from routers.visualize import router as visualize_router
 
 app = FastAPI(debug=True)

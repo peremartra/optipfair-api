@@ -1,15 +1,15 @@
 # utils/visualize_pca.py
+import logging
 import os
 import tempfile
-import logging
 from functools import lru_cache
-from typing import Tuple, Optional, Union, List
-
-import torch
-from optipfair.bias import visualize_pca, visualize_mean_differences, visualize_heatmap
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from typing import List, Optional, Tuple, Union
 
 import matplotlib
+import torch
+from optipfair.bias import (visualize_heatmap, visualize_mean_differences,
+                            visualize_pca)
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 matplotlib.use("Agg")  # Use 'Agg' backend for non-GUI environments
 

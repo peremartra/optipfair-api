@@ -1,8 +1,9 @@
-import gradio as gr
-import requests
 import logging
 import os
 import tempfile
+
+import gradio as gr
+import requests
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

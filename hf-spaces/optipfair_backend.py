@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware  # ← NUEVO: Para CORS
+
 from routers.visualize import router as visualize_router
 
 # Create FastAPI app with HF Spaces configuration
