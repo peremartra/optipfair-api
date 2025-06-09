@@ -1005,7 +1005,8 @@ def create_interface():
         3. Configure layer settings
         4. Generate visualizations to analyze potential biases
         
-        **🔗 Resources:** [OptiPFair Documentation](https://github.com/peremartra/optipfair) | """)
+        **🔗 Resources:** [OptiPFair Documentation](https://github.com/peremartra/optipfair) | """
+        )
 
     return interface
 
