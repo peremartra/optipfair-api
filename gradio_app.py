@@ -17,7 +17,7 @@ FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", "http://127.0.0.1:8000")
 AVAILABLE_MODELS = [
     "meta-llama/Llama-3.2-1B",
     "oopere/pruned40-llama-3.2-1B",
-    "meta-llama/Llama-3.2-3B",
+    "oopere/Fair-Llama-3.2-1B",
     "google/gemma-3-1b-pt",
     "Qwen/Qwen3-1.7B",
     "custom",  # Placeholder for custom models
