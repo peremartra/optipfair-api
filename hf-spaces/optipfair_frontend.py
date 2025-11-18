@@ -18,7 +18,9 @@ AVAILABLE_MODELS = [
     "meta-llama/Llama-3.2-1B",
     "oopere/pruned40-llama-3.2-1B",
     "oopere/Fair-Llama-3.2-1B",
+    "BSC-LT/salamandra-2b",
     "google/gemma-3-1b-pt",
+    "google/gemma-3-270m",
     "Qwen/Qwen3-1.7B",
     "custom",  # Placeholder for custom models
 ]
@@ -195,7 +197,15 @@ def generate_pca_visualization(
     except requests.exceptions.Timeout:
         return (
             None,
-            "❌ **Timeout Error:**\nThe request took too long. This might happen with large models. Try again or use a different layer.",
+            f"❌ **Timeout Error:**\n"
+            f"The request exceeded 5 minutes (300s).\n\n"
+            f"**Possible causes:**\n"
+            f"1. The model is very large and takes long to load\n"
+            f"2. The server is processing many requests\n\n"
+            f"**Solutions:**\n"
+            f"• Use a smaller model (1B parameters)\n"
+            f"• Wait and try again (model may be caching)\n"
+            f"• If it persists, run `diagnostic_tool.py` for more information",
             "",
         )
 
@@ -205,10 +215,35 @@ def generate_pca_visualization(
             "❌ **Connection Error:**\nCannot connect to the backend. Make sure the FastAPI server is running:\n`uvicorn main:app --reload`",
             "",
         )
+    
+    except MemoryError as e:
+        return (
+            None,
+            f"❌ **Memory Error:**\n"
+            f"The system ran out of RAM.\n\n"
+            f"**Solutions:**\n"
+            f"• Use a smaller model (1B parameters)\n"
+            f"• Request more RAM in HF Spaces (PRO plan)\n"
+            f"• Run `diagnostic_tool.py` for detailed analysis",
+            "",
+        )
 
     except Exception as e:
         logger.exception("Error in PCA visualization")
-        return None, f"❌ **Unexpected Error:**\n{str(e)}", ""
+        error_msg = str(e).lower()
+        
+        # Detect hidden memory errors in generic exceptions
+        if any(keyword in error_msg for keyword in ["memory", "ram", "oom", "out of memory", "allocation"]):
+            return (
+                None,
+                f"❌ **Memory Error (detected):**\n"
+                f"Error: {str(e)}\n\n"
+                f"The system likely ran out of memory.\n"
+                f"Run `diagnostic_tool.py` to confirm.",
+                "",
+            )
+        
+        return None, f"❌ **Unexpected Error:**\n{str(e)}\n\nCheck server logs for more details.", ""
 
 
 ################################################
@@ -360,7 +395,15 @@ def generate_mean_diff_visualization(
             )
 
     except requests.exceptions.Timeout:
-        return None, "❌ **Timeout Error:**\nThe request took too long. Try again.", ""
+        return (
+            None,
+            f"❌ **Timeout Error:**\n"
+            f"The request exceeded 5 minutes (300s).\n\n"
+            f"**Solutions:**\n"
+            f"• Try with a smaller model\n"
+            f"• Run `diagnostic_tool.py` to diagnose the problem",
+            "",
+        )
 
     except requests.exceptions.ConnectionError:
         return (
@@ -559,7 +602,15 @@ def generate_heatmap_visualization(
     except requests.exceptions.Timeout:
         return (
             None,
-            "❌ **Timeout Error:**\nThe request took too long. This might happen with large models. Try again or use a different layer.",
+            f"❌ **Timeout Error:**\n"
+            f"The request exceeded 5 minutes (300s).\n\n"
+            f"**Possible causes:**\n"
+            f"1. The model is very large\n"
+            f"2. The specified layer requires heavy processing\n\n"
+            f"**Solutions:**\n"
+            f"• Use a smaller model\n"
+            f"• Try a different layer (0-10 are usually faster)\n"
+            f"• Run `diagnostic_tool.py` for more information",
             "",
         )
 
