@@ -43,4 +43,5 @@ Analyze potential biases in Large Language Models using advanced visualization t
 Want to integrate OptipFair in your own projects? Check out the [LLM Reference Manual](https://github.com/peremartra/optipfair/blob/main/optipfair_llm_reference_manual.md).
 - Just give the LLM Reference Manual to your favourite LLM and start working with optipfair.
 
+
 Built with ❤️ using OptipFair library.
