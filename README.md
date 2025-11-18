@@ -1,3 +1,14 @@
+---
+title: OptiPFair Bias Visualization Tool
+emoji: 🔍
+colorFrom: blue
+colorTo: purple
+sdk: gradio
+sdk_version: 5.29.1
+app_file: hf-spaces/app.py
+pinned: false
+license: apache-2.0
+---
 # OptiPFair-API 
 
 <!-- Badges profesionales -->
