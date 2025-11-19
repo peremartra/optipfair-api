@@ -1,0 +1,28 @@
+name: Deploy to HF Spaces
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'hf-spaces/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Necesario para subtree
+      
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+      
+      - name: Deploy to HF Spaces
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git push https://peremartra:$HF_TOKEN@huggingface.co/spaces/oopere/optipfair-bias-analyzer `git subtree split --prefix hf-spaces main`:main --force
