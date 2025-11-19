@@ -23,6 +23,6 @@ jobs:
       
       - name: Deploy to HF Spaces
         env:
-          HF_TOKEN: ${{ secrets.optipfare-space }}
+          HF_TOKEN: ${{ secrets.HF_SPACES }}
         run: |
           git push https://peremartra:$HF_TOKEN@huggingface.co/spaces/oopere/optipfair-bias-analyzer `git subtree split --prefix hf-spaces main`:main --force
