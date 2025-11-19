@@ -20,7 +20,7 @@ python hf-spaces/diagnostic_tool.py
 ```
 
 **What it does**:
-- Monitors system memory in real real-time
+- Monitors system memory in real real real-time
 - Tracks model loading time
 - Detects the exact failure point
 - Provides specific recommendations
